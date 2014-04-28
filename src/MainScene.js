@@ -51,8 +51,10 @@ tm.define("roulette.MainScene", {
         //写真準備
         var ps = this.photos = [];
         for (var i = 0; i < NUM_PHOTO; i++) {
-            var p = tm.display.Sprite(""+(i+1),640, 480).addChildTo(this);
-            p.visible = false;
+            var p = this.photos[i] = tm.display.Sprite(""+(i+1),640, 480).addChildTo(this);
+            p.x = -SC_W/2;
+            p.y = SC_H/2;
+            p.tweener.wait(i*250).to({ x: SC_W*2, y: SC_H/2 }, 2000, "easeOutQuint");
         }
     },
 
@@ -72,3 +74,5 @@ tm.define("roulette.MainScene", {
     },
 
 });
+
+
