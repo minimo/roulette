@@ -11,27 +11,49 @@ tm.define("roulette.MainScene", {
 
     init: function() {
         this.superInit();
+        this.background = "rgba(0, 0, 0, 1.0)";
+
+        //バックグラウンド
+        var bg = tm.display.Sprite("bg",3848, 1280).addChildTo(this);
+        bg.x = 0;
+        bg.y = 0;
+        bg.originX = bg.originY = 0;
 
         var that = this;
-        //派兵レートラベル
-        var lb = this.rateLabel = tm.display.OutlineLabel("50%", 30).addChildTo(this);
-        lb.x = 580;
-        lb.y = 620;
+        var lb = this.startLabel = tm.display.OutlineLabel("START!", 30).addChildTo(this);
+        lb.x = SC_W/2;
+        lb.y = SC_H/2;
         lb.fontFamily = "'Orbitron'";
         lb.align     = "center";
         lb.baseline  = "middle";
         lb.fontSize = 30;
         lb.fontWeight = 700;
         lb.outlineWidth = 2;
+        lb.active = true;
+        lb.time = 1;
         lb.update = function() {
-            if (that.control == CTRL_RATE) {
-                this.fontSize++;
-            } else {
-                this.fontSize--;
+            if (!this.active) {
+                this.visible = false;
+                return;
             }
-            this.fontSize = clamp(this.fontSize, 30, 40);
-            this.text = that.world.rate + "%";
+
+            if (this.time == 75 && this.visible) {
+                this.visible = false;
+                this.time = 0;
+            }
+            if (this.time == 45 && !this.visible) {
+                this.visible = true;
+                this.time = 0;
+            }
+            this.time++;
         };
+
+        //写真準備
+        var ps = this.photos = [];
+        for (var i = 0; i < NUM_PHOTO; i++) {
+            var p = tm.display.Sprite(""+(i+1),640, 480).addChildTo(this);
+            p.visible = false;
+        }
     },
 
     update: function() {

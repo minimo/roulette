@@ -5,22 +5,18 @@
  *  This Program is MIT license.
  */
 
+NUM_PHOTO = 4;
+
 //アセット登録
 var assets = {
     //images
-    "arrow":        "assets/arrow.png",
-    "planet":       "assets/planet.png",
-    "planet_mono":  "assets/planet_mono.png",
-    "frigate":      "assets/frigate1.png",
+    "bg":   "assets/5212712025_93cca9e023_o.jpg",
 
-    "laser_b":      "assets/laser_b.png",
-    "laser_r":      "assets/laser_r.png",
-    "laser_h":      "assets/laser_h.png",
-    "laser_head":   "assets/laser_head.png",
-
-    "explode":      "assets/explode.png",
-
-    "bg1":          "assets/5212712025_93cca9e023_o.jpg",
+    //photo
+    "1":   "photo/1.png",
+    "2":   "photo/2.png",
+    "3":   "photo/3.png",
+    "4":   "photo/4.png",
 }
 
 //namespace tiger
@@ -33,8 +29,25 @@ tm.define("roulette.CanvasApp", {
 
     init: function(id) {
         this.superInit(id);
+        this.resize(SC_W, SC_H).fitWindow();
+        this.fps = 60;
+        this.background = "rgba(0, 0, 0, 0)";
+        this.keyboard = tm.input.Keyboard(window);
+
         roulette.core = this;
-   },
+        
+        var loadingScene = tm.ui["LoadingScene"]({
+            assets: assets,
+            width: SC_W,
+            height: SC_H,
+            nextScene: function() {
+                this._onLoadAssets();
+                return roulette.MainScene();
+            }.bind(this),
+        });
+        loadingScene.bg.canvas.clearColor("black");
+        this.replaceScene(loadingScene);
+  },
 
     _onLoadAssets: function() {
     },
