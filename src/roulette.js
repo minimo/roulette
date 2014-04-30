@@ -5,7 +5,7 @@
  *  This Program is MIT license.
  */
 
-NUM_PHOTO = 8;
+NUM_PHOTO = 12;
 
 //アセット登録
 var assets = {
@@ -21,6 +21,10 @@ var assets = {
     "6":   "photo/2.png",
     "7":   "photo/3.png",
     "8":   "photo/4.png",
+    "9":   "photo/1.png",
+    "10":   "photo/2.png",
+    "11":   "photo/3.png",
+    "12":   "photo/4.png",
 }
 
 //namespace tiger
