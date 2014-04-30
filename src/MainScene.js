@@ -9,12 +9,14 @@
 tm.define("roulette.MainScene", {
     superClass: tm.app.Scene,
 
+    ready: true,
+
     init: function() {
         this.superInit();
         this.background = "rgba(0, 0, 0, 1.0)";
 
         //バックグラウンド
-        var bg = tm.display.Sprite("bg",3848, 1280).addChildTo(this);
+        var bg = this.bg = tm.display.Sprite("bg",3848, 1280).addChildTo(this);
         bg.x = 0;
         bg.y = 0;
         bg.originX = bg.originY = 0;
@@ -36,6 +38,8 @@ tm.define("roulette.MainScene", {
                 this.visible = false;
                 return;
             }
+            if (!that.ready) {
+            }
 
             if (this.time == 75 && this.visible) {
                 this.visible = false;
@@ -54,11 +58,25 @@ tm.define("roulette.MainScene", {
             var p = this.photos[i] = tm.display.Sprite(""+(i+1),640, 480).addChildTo(this);
             p.x = -SC_W/2;
             p.y = SC_H/2;
-            p.tweener.wait(i*250).to({ x: SC_W*2, y: SC_H/2 }, 2000, "easeOutQuint");
         }
     },
 
     update: function() {
+        var kb = app.keyboard;
+        if (kb.getKey("space")) {
+            this.start();
+        }
+        this.bg.x--;
+    },
+
+    start: function() {
+        if (this.ready) {
+            for (var i = 0; i < NUM_PHOTO; i++) {
+                var p = this.photos[i];
+                p.tweener.wait(i*250).to({ x: SC_W*2, y: SC_H/2 }, 2000, "easeOutQuint");
+            }
+            this.ready = false;
+        }
     },
 
     //タッチorクリック開始処理
