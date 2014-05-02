@@ -10,6 +10,7 @@ tm.define("roulette.MainScene", {
     superClass: tm.app.Scene,
 
     ready: true,
+    rolling: false,
 
     init: function() {
         this.superInit();
@@ -34,11 +35,9 @@ tm.define("roulette.MainScene", {
         lb.active = true;
         lb.time = 1;
         lb.update = function() {
-            if (!this.active) {
+            if (!this.active || !that.ready) {
                 this.visible = false;
                 return;
-            }
-            if (!that.ready) {
             }
 
             if (this.time == 75 && this.visible) {
@@ -66,7 +65,10 @@ tm.define("roulette.MainScene", {
         if (kb.getKey("space")) {
             this.start();
         }
-        this.bg.x--;
+        this.bg.x-=0.2;
+        if (this.bg.x < -3848+SC_W) {
+            this.bg.x = 0;
+        }
     },
 
     start: function() {
