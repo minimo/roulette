@@ -9,14 +9,9 @@
 tm.define("roulette.MainScene", {
     superClass: tm.app.Scene,
 
-    //実行フェーズ
-    //0:初期状態
-    //1:実行中
-    //2:停止中
-    phase: 0,
-
     time: 0,
-    interval:0,
+    interval: 0,
+    stop: true,
 
     init: function() {
         this.superInit();
@@ -41,7 +36,7 @@ tm.define("roulette.MainScene", {
         lb.active = true;
         lb.time = 1;
         lb.update = function() {
-            if (!this.active || that.phase != 0) {
+            if (!this.active || !that.stop) {
                 this.visible = false;
                 return;
             }
@@ -61,29 +56,21 @@ tm.define("roulette.MainScene", {
         var ps = this.photos = [];
         for (var i = 0; i < NUM_PHOTO; i++) {
             var p = this.photos[i] = tm.display.Sprite(""+(i+1),640, 480).addChildTo(this);
+            p.x = -SC_W-i*640;
+            p.y = SC_H/2;
+            var that = this;
+            p.update = function() {
+                if (!that.stop) this.x += 100;
+            }
         }
+        this.photos.shuffle();
     },
 
     update: function() {
         var kb = app.keyboard;
-        if (kb.getKey("space")) {
-            if (this.phase == 0) {
-                this.start();
-                this.phase++;
-                this.interval = this.time+60;
-            }
-            if (this.phase == 1 && this.time > this.interval) {
-                this.stop();
-                this.phase++;
-                this.interval = this.time+60;
-            }
-            if (this.phase == 2 && this.time > this.interval) {
-                this.start();
-                this.phase = 1;
-                this.interval = this.time+60;
-            }
+        if (kb.getKey("space") && this.time > this.interval) {
+            this.interval = this.time+60;
         }
-
 
         this.bg.x-=0.2;
         if (this.bg.x < -3848+SC_W) {
@@ -96,17 +83,13 @@ tm.define("roulette.MainScene", {
         this.photos.shuffle();
         for (var i = 0; i < NUM_PHOTO; i++) {
             var p = this.photos[i];
-            p.x = -SC_W/2;
-            p.y = SC_H/2;
-            p.tweener.wait(i*100).to({ x: SC_W*2, y: SC_H/2 }, 1500, "easeOutQuint");
+            p.x = -SC_W-i*640;
         }
+        this.stop = false;
     },
     
     stop: function() {
-        for (var i = 0; i < NUM_PHOTO; i++) {
-            var p = this.photos[i];
-            p.tweener.clear();
-        }
+        this.stop = true;
     },
 
     //タッチorクリック開始処理
