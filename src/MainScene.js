@@ -8,10 +8,16 @@
 
 tm.define("roulette.MainScene", {
     superClass: tm.app.Scene,
+    
+    ready: true,    //READY表示フラグ
+    stop: false,    //ルーレットストップフラグ
 
     time: 0,
     interval: 0,
-    stop: true,
+    
+    //ルーレット用
+    r_w: 450,
+    r_h: 300,
 
     init: function() {
         this.superInit();
@@ -36,7 +42,7 @@ tm.define("roulette.MainScene", {
         lb.active = true;
         lb.time = 1;
         lb.update = function() {
-            if (!this.active || !that.stop) {
+            if (!that.ready) {
                 this.visible = false;
                 return;
             }
@@ -51,17 +57,32 @@ tm.define("roulette.MainScene", {
             }
             this.time++;
         };
+        
+        //基準オブジェクト
+        this.root = tm.app.Object2D().addChildTo(this);
+        this.base = tm.app.Object2D().addChildTo(this.root);
+        this.base.x = SC_W/2;
+        this.base.y = SC_H/2;
 
         //写真準備
         var ps = this.photos = [];
+        var r = (Math.PI*2)/NUM_PHOTO;
         for (var i = 0; i < NUM_PHOTO; i++) {
-            var p = this.photos[i] = tm.display.Sprite(""+(i+1),640, 480).addChildTo(this);
-            p.x = -SC_W-i*640;
-            p.y = SC_H/2;
+            var p = this.photos[i] = tm.display.Sprite(""+(i+1),640, 480).addChildTo(this.base);
+            p.r_w = this.r_w;
+            p.r_h = this.r_h;
+            p.r = r*i;
+            p.x = Math.sin(p.r)*p.r_w;
+            p.y = Math.cos(p.r)*p.r_h;
             var that = this;
             p.update = function() {
-                if (!that.stop) this.x += 100;
+//                if (!that.stop) {
+                    this.r-= 0.1;
+                    this.x = Math.sin(this.r)*this.r_w;
+                    this.y = Math.cos(this.r)*this.r_h;
+//                }
             }
+            p.setScale(0.1);
         }
         this.photos.shuffle();
     },
@@ -80,16 +101,9 @@ tm.define("roulette.MainScene", {
     },
 
     start: function() {
-        this.photos.shuffle();
-        for (var i = 0; i < NUM_PHOTO; i++) {
-            var p = this.photos[i];
-            p.x = -SC_W-i*640;
-        }
-        this.stop = false;
     },
     
     stop: function() {
-        this.stop = true;
     },
 
     //タッチorクリック開始処理
