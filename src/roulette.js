@@ -5,7 +5,7 @@
  *  This Program is MIT license.
  */
 
-NUM_PHOTO = 100;
+NUM_PHOTO = 50;
 
 //アセット登録
 var assets = {

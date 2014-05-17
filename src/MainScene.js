@@ -16,8 +16,8 @@ tm.define("roulette.MainScene", {
     interval: 0,
     
     //ルーレット用
-    r_w: 1000,
-    r_h: 400,
+    r_w: 300,
+    r_h: 300,
 
     init: function() {
         this.superInit();
@@ -62,7 +62,7 @@ tm.define("roulette.MainScene", {
         this.root = tm.app.Object2D().addChildTo(this);
         this.base = tm.app.Object2D().addChildTo(this.root);
         this.base.x = SC_W/2;
-        this.base.y = SC_H;
+        this.base.y = SC_H/2;
 
         //写真準備
         var ps = this.photos = [];
@@ -74,19 +74,24 @@ tm.define("roulette.MainScene", {
             p.r = r*i;
             p.x = Math.sin(p.r)*p.r_w;
             p.y = Math.cos(p.r)*p.r_h;
+
             var that = this;
             p.update = function() {
 
-                this.r-= 0.01;
+                this.r-= 0.1;
                 this.x = Math.sin(this.r)*this.r_w;
                 this.y = Math.cos(this.r)*this.r_h;
 
                 //中心に近付くと大きさを変える
                 var dis = Math.abs(this.x);
-                if (dis < 200) {
+                if (dis < 200 && this.y < SC_H/2) {
                     var sc = 1-(dis/200);
                     sc = clamp(sc, 0.1, 0.5);
                     this.setScale(sc);
+/*
+                    var t = 1-(dis/200);
+                    var sc = ease_in_out(t, b, c, d);
+ */
                 } else {
                     this.setScale(0.1);
                 }

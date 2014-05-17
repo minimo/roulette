@@ -27,6 +27,14 @@ var clamp = function(x, min, max) {
     return (x<min)?min:((x>max)?max:x);
 };
 
+//easing qubic in out
+var ease_in_out = function(t, b, c, d) {
+    t /= d/2.0
+    if (t < 1)return c/2.0*t*t + b;
+    t = t - 1;
+    return -c/2.0 * (t*(t-2) - 1) + b;
+}
+
 //インスタンス
 app = {};
 
