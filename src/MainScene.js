@@ -11,13 +11,15 @@ tm.define("roulette.MainScene", {
     
     ready: true,    //READY表示フラグ
     stop: false,    //ルーレットストップフラグ
+    wait: 1,        //ローリングウェイト
+    select: 0,      //選択番号
 
     time: 0,
     interval: 0,
     
     //ルーレット用
-    r_w: 300,
-    r_h: 300,
+    r_w: 900,
+    r_h: 500,
 
     init: function() {
         this.superInit();
@@ -71,40 +73,48 @@ tm.define("roulette.MainScene", {
             var p = this.photos[i] = tm.display.Sprite(""+(i+1),640, 480).addChildTo(this.base);
             p.r_w = this.r_w;
             p.r_h = this.r_h;
-            p.r = r*i;
+            p.r = -r*i;
             p.x = Math.sin(p.r)*p.r_w;
             p.y = Math.cos(p.r)*p.r_h;
-
-            var that = this;
-            p.update = function() {
-
-                this.r-= 0.1;
-                this.x = Math.sin(this.r)*this.r_w;
-                this.y = Math.cos(this.r)*this.r_h;
-
-                //中心に近付くと大きさを変える
-                var dis = Math.abs(this.x);
-                if (dis < 200 && this.y < SC_H/2) {
-                    var sc = 1-(dis/200);
-                    sc = clamp(sc, 0.1, 0.5);
-                    this.setScale(sc);
-/*
-                    var t = 1-(dis/200);
-                    var sc = ease_in_out(t, b, c, d);
- */
-                } else {
-                    this.setScale(0.1);
-                }
-            }
             p.setScale(0.1);
+            p.active = false;
+            p.sc = 0.1;
+            p.update = function() {
+                if (this.active) {
+                    this.sc+=0.01;
+                    if (this.sc > 0.5) this.sc = 0.5;
+                    this.sc = 0.5;
+                } else {
+                    this.sc-=0.01;
+                    if (this.sc < 0.1) this.sc = 0.1;
+                    this.sc = 0.1;
+                }
+                this.setScale(this.sc);
+            }
         }
-        this.photos.shuffle();
+//        this.photos.shuffle();
+        this.center = tm.display.Sprite("1", 800, 600).addChildTo(this.base);
+        this.center.visible = false;
     },
 
     update: function() {
         var kb = app.keyboard;
-        if (kb.getKey("space") && this.time > this.interval) {
+        if (this.ready && kb.getKey("space") && this.time > this.interval) {
             this.interval = this.time+60;
+            this.ready = false;
+        }
+
+        if (!this.ready) {
+            if (this.time % this.wait == 0) {
+                this.photos[this.select].active = false;
+                this.select++;  
+                if (this.select == NUM_PHOTO) {
+                    this.select = 0;
+                }
+                this.photos[this.select].active = true;
+                this.center.remove();
+                this.center = tm.display.Sprite(""+(this.select+1), 800, 600).addChildTo(this.base);
+            }
         }
 
         this.bg.x-=0.2;
@@ -112,12 +122,6 @@ tm.define("roulette.MainScene", {
             this.bg.x = 0;
         }
         this.time++;
-    },
-
-    start: function() {
-    },
-    
-    stop: function() {
     },
 
     //タッチorクリック開始処理

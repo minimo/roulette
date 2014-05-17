@@ -13,8 +13,8 @@ var mt = new MersenneTwister();
 var DEBUG = false;
 
 //スクリーンサイズ
-SC_W = 1024;
-SC_H = 768;
+SC_W = 1920;
+SC_H = 1080;
 
 var toRad = 3.14159/180;    //弧度法toラジアン変換
 var toDeg = 180/3.14159;    //ラジアンto弧度法変換

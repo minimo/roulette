@@ -126,7 +126,7 @@ tm.define("roulette.CanvasApp", {
     init: function(id) {
         this.superInit(id);
         this.resize(SC_W, SC_H).fitWindow();
-        this.fps = 60;
+        this.fps = 120;
         this.background = "rgba(0, 0, 0, 0)";
         this.keyboard = tm.input.Keyboard(window);
 
