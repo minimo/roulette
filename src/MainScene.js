@@ -49,11 +49,11 @@ tm.define("roulette.MainScene", {
                 return;
             }
 
-            if (this.time == 75 && this.visible) {
+            if (this.time == sec(1.25) && this.visible) {
                 this.visible = false;
                 this.time = 0;
             }
-            if (this.time == 45 && !this.visible) {
+            if (this.time == sec(0.75) && !this.visible) {
                 this.visible = true;
                 this.time = 0;
             }
@@ -70,27 +70,34 @@ tm.define("roulette.MainScene", {
         var ps = this.photos = [];
         var r = (Math.PI*2)/NUM_PHOTO;
         for (var i = 0; i < NUM_PHOTO; i++) {
-            var p = this.photos[i] = tm.display.Sprite(""+(i+1),640, 480).addChildTo(this.base);
+            var p = this.photos[i] = tm.display.Sprite(""+(i+1),PHOTO_W, PHOTO_H).addChildTo(this.base);
             p.r_w = this.r_w;
             p.r_h = this.r_h;
             p.r = -r*i;
-            p.x = Math.sin(p.r)*p.r_w;
-            p.y = Math.cos(p.r)*p.r_h;
-            p.setScale(0.1);
+            p.x = rand(-SC_W/2+100, SC_W/2-100);
+            p.y = rand(-SC_H/2+100, SC_H/2-100);
+            p.currentX = Math.sin(p.r)*p.r_w;
+            p.currentY = Math.cos(p.r)*p.r_h;
+            p.setScale(0.5);
             p.active = false;
             p.sc = 0.1;
             p.update = function() {
-                if (this.active) {
-                    this.sc+=0.01;
-                    if (this.sc > 0.5) this.sc = 0.5;
-                    this.sc = 0.5;
-                } else {
-                    this.sc-=0.01;
-                    if (this.sc < 0.1) this.sc = 0.1;
-                    this.sc = 0.1;
+                if (!that.ready) {
+                    if (this.active) {
+                        this.sc+=0.01;
+                        if (this.sc > 0.5) this.sc = 0.5;
+                        this.sc = 0.5;
+                        this.remove();
+                        this.addChildTo(that.base);
+                    } else {
+                        this.sc-=0.01;
+                        if (this.sc < 0.1) this.sc = 0.1;
+                        this.sc = 0.1;
+                    }
+                    this.setScale(this.sc);
                 }
-                this.setScale(this.sc);
             }
+            p.tweener.wait(1000).scale(0.1, 500, "easeOutQuint").to({ x: p.currentX, y: p.currentY }, 2000, "easeOutQuint");
         }
 //        this.photos.shuffle();
         this.center = tm.display.Sprite("1", 800, 600).addChildTo(this.base);
@@ -100,8 +107,14 @@ tm.define("roulette.MainScene", {
     update: function() {
         var kb = app.keyboard;
         if (this.ready && kb.getKey("space") && this.time > this.interval) {
-            this.interval = this.time+60;
+            this.interval = this.time+sec(2.0);
             this.ready = false;
+        }
+
+        if (!this.ready && kb.getKey("space") && this.time > this.interval) {
+            this.interval = this.time+sec(2.0);
+            this.ready = true;
+            this.stop = true;
         }
 
         if (!this.ready) {

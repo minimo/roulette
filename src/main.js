@@ -16,9 +16,19 @@ var DEBUG = false;
 SC_W = 1920;
 SC_H = 1080;
 
+//写真サイズ
+PHOTO_W = 800;
+PHOTO_H = 600;
+
+//写真数
+NUM_PHOTO = 100;
+
+//フレームレート
+fps = 240;
+
 var toRad = 3.14159/180;    //弧度法toラジアン変換
 var toDeg = 180/3.14159;    //ラジアンto弧度法変換
-var sec = function(s) { return ~~(60 * s) };               //秒からフレーム数へ変換
+var sec = function(s) { return ~~(fps * s) };               //秒からフレーム数へ変換
 var rand = function(min, max) { return mt.nextInt(min, max); };    //乱数発生
 //var rand = function(max) {return ~~(Math.random() * max);}
 
