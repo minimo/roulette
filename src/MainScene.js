@@ -19,7 +19,7 @@ tm.define("roulette.MainScene", {
 
     wait: 1,        //ローリングウェイト
     select: 0,      //選択番号
-
+    
     time: 0,
     interval: 0,
     
@@ -95,20 +95,18 @@ tm.define("roulette.MainScene", {
             p.setScale(0.5);
             p.active = false;
             p.skip = false;
-            p.sc = 0.1;
             p.update = function() {
                 if (that.phase > 1) {
                     this.r += 0.0001;
                     this.x = Math.sin(this.r)*this.r_w;
                     this.y = Math.cos(this.r)*this.r_h;
                     if (this.active) {
-                        this.sc = 0.5;
                         this.remove();
                         this.addChildTo(that.base);
+                        this.setScale(0.5);
                     } else {
-                        this.sc = 0.1;
+                        this.setScale(0.1);
                     }
-                    this.setScale(this.sc);
                 }
             }
         }
@@ -128,7 +126,7 @@ tm.define("roulette.MainScene", {
 
     update: function() {
         var kb = app.keyboard;
-        
+
         if (this.phase == 0 && this.time % 1 == 0) {
             var num = rand(1, NUM_PHOTO);
             this.photos[num].remove();
@@ -171,7 +169,7 @@ tm.define("roulette.MainScene", {
         if (this.phase == 2 || this.phase == 3) {
             if (this.time % this.wait == 0) {
                 this.photos[this.select].active = false;
-                this.select++;  
+                this.select++;
                 if (this.select == NUM_PHOTO) {
                     this.select = 0;
                 }
@@ -182,13 +180,14 @@ tm.define("roulette.MainScene", {
             }
         }
 
-        //当選者決定
+        //当選者決定後、最初に戻る
         if (this.phase == 4 && kb.getKey("space") && this.time > this.interval) {
             this.interval = this.time+sec(2.0);
             this.center.tweener.fadeOut(1000);
             this.photos[this.select].skip = true;
-            this.photos[this.select].tweener.fadeOut(1000);
+            this.photos[this.select].tweener.clear().fadeOut(1000);
             this.phase = 1;
+            this.infoLabel.visible = true;
         }
 
         this.bg.x-=0.2;
