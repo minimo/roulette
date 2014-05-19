@@ -13,15 +13,10 @@ tm.define("roulette.MainScene", {
                     //0: 起動直後
                     //1: 待機中（ルーレット起動待ち）
                     //2: ルーレット回転中
-                    //3: ストップボタン押下
-                    //4: ストップ後スライド中
-                    //5: 決定
-                    //6: 決定後戻り待ち
+                    //3: ストップボタン押下後スライド中
+                    //4: 決定
+                    //5: 決定後戻り待ち
 
-    start: false,   //初回スタートフラグ
-    ready: false,   //READY表示フラグ
-    stop: true,     //ルーレットストップフラグ
-    finish: true,   //決定フラグ
     wait: 1,        //ローリングウェイト
     select: 0,      //選択番号
 
@@ -60,16 +55,15 @@ tm.define("roulette.MainScene", {
         lb.fontSize = 90;
         lb.fontWeight = 700;
         lb.outlineWidth = 2;
-        lb.active = true;
         lb.time = 1;
         lb.visible = false;
         lb.update = function() {
-            if (!that.ready && !that.stop) {
+            if (that.phase != 1 && that.phase != 3) {
                 this.visible = false;
                 return;
             }
 
-            if (that.start) {
+            if (that.phase == 1) {
                 this.text = "READY!!"
                 if (this.time == sec(1.25) && this.visible) {
                     this.visible = false;
@@ -79,7 +73,7 @@ tm.define("roulette.MainScene", {
                     this.visible = true;
                     this.time = 0;
                 }
-            } else if (that.stop && that.start){
+            } else if (that.phase == 3){
                 this.text = "STOP!!"
                 this.visible = true;
             } else {
@@ -93,15 +87,17 @@ tm.define("roulette.MainScene", {
         var r = (Math.PI*2)/NUM_PHOTO;
         for (var i = 0; i < NUM_PHOTO; i++) {
             var p = this.photos[i] = tm.display.Sprite(""+(i+1),PHOTO_W, PHOTO_H).addChildTo(this.base);
+            p.number = i+1;
             p.r_w = this.r_w;
             p.r_h = this.r_h;
             p.x = rand(-SC_W/2+200, SC_W/2-200);
             p.y = rand(-SC_H/2+100, SC_H/2-100);
             p.setScale(0.5);
             p.active = false;
+            p.skip = false;
             p.sc = 0.1;
             p.update = function() {
-                if (that.start && !that.ready) {
+                if (that.phase > 1) {
                     this.r += 0.0001;
                     this.x = Math.sin(this.r)*this.r_w;
                     this.y = Math.cos(this.r)*this.r_h;
@@ -109,13 +105,10 @@ tm.define("roulette.MainScene", {
                         this.sc = 0.5;
                         this.remove();
                         this.addChildTo(that.base);
-                        this.tweener.clear();
-                        this.tweener.scale(0.5, 30, "easeOutQuint");
                     } else {
                         this.sc = 0.1;
-                        this.tweener.scale(0.1, 30, "easeOutQuint");
                     }
-//                    this.setScale(this.sc);
+                    this.setScale(this.sc);
                 }
             }
         }
@@ -136,7 +129,7 @@ tm.define("roulette.MainScene", {
     update: function() {
         var kb = app.keyboard;
         
-        if (!this.start && this.time % sec(0.5) == 0) {
+        if (this.phase == 0 && this.time % 1 == 0) {
             var num = rand(1, NUM_PHOTO);
             this.photos[num].remove();
             this.photos[num].addChildTo(this.base);
@@ -145,43 +138,37 @@ tm.define("roulette.MainScene", {
         }
         
         //初回処理
-        if (!this.start && kb.getKey("space")) {
+        if (this.phase == 0 && kb.getKey("space")) {
             this.interval = this.time+sec(2.0);
             this.startup();
-            this.start = true;
-            this.ready = true;
+            this.phase++;
         }
 
-        //スタート処理
-        if (this.start && this.ready && kb.getKey("space") && this.time > this.interval) {
+        //回転スタート
+        if (this.phase == 1 && kb.getKey("space") && this.time > this.interval) {
             this.interval = this.time+sec(2.0);
-            this.ready = false;
-            this.stop = false;
-            this.finish = false;
             this.wait = 1;
+            this.phase++;
         }
 
-        //ストップ処理
-        if (!this.ready && !this.stop && kb.getKey("space") && this.time > this.interval) {
+        //回転ストップ
+        if (this.phase == 2 && kb.getKey("space") && this.time > this.interval) {
             this.interval = this.time+sec(2.0);
             this.stop = true;
+            this.phase++;
         }
 
-        if (!this.ready && this.stop) {
+        //スライド中
+        if (this.phase == 3) {
             if (this.time % 3 == 0)this.wait++;
-            if (this.wait == 60) {
-                this.interval = this.time+sec(5.0);
-                this.finish = true;
+            if (this.wait == sec(1.0)) {
+                this.interval = this.time+sec(1.0);
+                this.phase++;
             }
         }
 
-        //ストップ処理
-        if (this.finish && kb.getKey("space") && this.time > this.interval) {
-            this.interval = this.time+sec(2.0);
-            this.ready = true;
-        }
-
-        if (!this.finish) {
+        //ルーレット回転処理
+        if (this.phase == 2 || this.phase == 3) {
             if (this.time % this.wait == 0) {
                 this.photos[this.select].active = false;
                 this.select++;  
@@ -189,9 +176,19 @@ tm.define("roulette.MainScene", {
                     this.select = 0;
                 }
                 this.photos[this.select].active = true;
+                var num = this.photos[this.select].number;
                 this.center.remove();
-                this.center = tm.display.Sprite(""+(this.select+1), 800, 600).addChildTo(this.base);
+                this.center = tm.display.Sprite(""+num, 800, 600).addChildTo(this.base);
             }
+        }
+
+        //当選者決定
+        if (this.phase == 4 && kb.getKey("space") && this.time > this.interval) {
+            this.interval = this.time+sec(2.0);
+            this.center.tweener.fadeOut(1000);
+            this.photos[this.select].skip = true;
+            this.photos[this.select].tweener.fadeOut(1000);
+            this.phase = 1;
         }
 
         this.bg.x-=0.2;

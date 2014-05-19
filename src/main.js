@@ -21,7 +21,7 @@ PHOTO_W = 800;
 PHOTO_H = 600;
 
 //写真数
-NUM_PHOTO = 100;
+NUM_PHOTO = 130;
 
 //フレームレート
 fps = 240;
