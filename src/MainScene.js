@@ -9,7 +9,17 @@
 tm.define("roulette.MainScene", {
     superClass: tm.app.Scene,
     
-    ready: true,    //READY表示フラグ
+    phase: 0,       //現在フェーズ
+                    //0: 起動直後
+                    //1: 待機中（ルーレット起動待ち）
+                    //2: ルーレット回転中
+                    //3: ストップボタン押下
+                    //4: ストップ後スライド中
+                    //5: 決定
+                    //6: 決定後戻り待ち
+
+    start: false,   //初回スタートフラグ
+    ready: false,   //READY表示フラグ
     stop: true,     //ルーレットストップフラグ
     finish: true,   //決定フラグ
     wait: 1,        //ローリングウェイト
@@ -41,7 +51,7 @@ tm.define("roulette.MainScene", {
 
         //情報ラベル
         var that = this;
-        var lb = this.startLabel = tm.display.OutlineLabel("START!", 30).addChildTo(this);
+        var lb = this.infoLabel = tm.display.OutlineLabel("START!", 30).addChildTo(this.info);
         lb.x = SC_W/2;
         lb.y = SC_H/2;
         lb.fontFamily = "'Orbitron'";
@@ -52,19 +62,28 @@ tm.define("roulette.MainScene", {
         lb.outlineWidth = 2;
         lb.active = true;
         lb.time = 1;
+        lb.visible = false;
         lb.update = function() {
-            if (!that.ready) {
+            if (!that.ready && !that.stop) {
                 this.visible = false;
                 return;
             }
 
-            if (this.time == sec(1.25) && this.visible) {
-                this.visible = false;
-                this.time = 0;
-            }
-            if (this.time == sec(0.75) && !this.visible) {
+            if (that.start) {
+                this.text = "READY!!"
+                if (this.time == sec(1.25) && this.visible) {
+                    this.visible = false;
+                    this.time = 0;
+                }
+                if (this.time == sec(0.75) && !this.visible) {
+                    this.visible = true;
+                    this.time = 0;
+                }
+            } else if (that.stop && that.start){
+                this.text = "STOP!!"
                 this.visible = true;
-                this.time = 0;
+            } else {
+                this.visible = false;
             }
             this.time++;
         };
@@ -76,45 +95,65 @@ tm.define("roulette.MainScene", {
             var p = this.photos[i] = tm.display.Sprite(""+(i+1),PHOTO_W, PHOTO_H).addChildTo(this.base);
             p.r_w = this.r_w;
             p.r_h = this.r_h;
-            p.r = -r*i;
-            p.x = rand(-SC_W/2+100, SC_W/2-100);
+            p.x = rand(-SC_W/2+200, SC_W/2-200);
             p.y = rand(-SC_H/2+100, SC_H/2-100);
-            p.currentX = Math.sin(p.r)*p.r_w;
-            p.currentY = Math.cos(p.r)*p.r_h;
             p.setScale(0.5);
             p.active = false;
             p.sc = 0.1;
             p.update = function() {
-                if (!that.ready) {
+                if (that.start && !that.ready) {
                     this.r += 0.0001;
                     this.x = Math.sin(this.r)*this.r_w;
                     this.y = Math.cos(this.r)*this.r_h;
                     if (this.active) {
-                        this.sc+=0.01;
-                        if (this.sc > 0.5) this.sc = 0.5;
                         this.sc = 0.5;
                         this.remove();
                         this.addChildTo(that.base);
+                        this.tweener.clear();
+                        this.tweener.scale(0.5, 30, "easeOutQuint");
                     } else {
-                        this.sc-=0.01;
-                        if (this.sc < 0.1) this.sc = 0.1;
                         this.sc = 0.1;
+                        this.tweener.scale(0.1, 30, "easeOutQuint");
                     }
-                    this.setScale(this.sc);
+//                    this.setScale(this.sc);
                 }
             }
-//            p.tweener.wait(1000).scale(0.1, 500, "easeOutQuint").to({ x: p.currentX, y: p.currentY }, 1000, "easeOutQuint");
-            p.tweener.wait(1000).to({x: p.currentX, y:p.currentY, scaleX: 0.1, scaleY: 0.1}, 1000, "easeOutQuint")
         }
-//        this.photos.shuffle();
+
+        //シャッフルして順番に円形に並べる
+        this.photos.shuffle();
+        for (var i = 0; i < NUM_PHOTO; i++) {
+            var p = this.photos[i];
+            p.r = -r*i;
+            p.currentX = Math.sin(p.r)*p.r_w;
+            p.currentY = Math.cos(p.r)*p.r_h;
+        }
+        
         this.center = tm.display.Sprite("1", 800, 600).addChildTo(this.base);
         this.center.visible = false;
     },
 
     update: function() {
         var kb = app.keyboard;
+        
+        if (!this.start && this.time % sec(0.5) == 0) {
+            var num = rand(1, NUM_PHOTO);
+            this.photos[num].remove();
+            this.photos[num].addChildTo(this.base);
+            this.photos[num].x = rand(-SC_W/2+200, SC_W/2-200);
+            this.photos[num].y = rand(-SC_H/2+100, SC_H/2-100);
+        }
+        
+        //初回処理
+        if (!this.start && kb.getKey("space")) {
+            this.interval = this.time+sec(2.0);
+            this.startup();
+            this.start = true;
+            this.ready = true;
+        }
+
         //スタート処理
-        if (this.ready && kb.getKey("space") && this.time > this.interval) {
+        if (this.start && this.ready && kb.getKey("space") && this.time > this.interval) {
             this.interval = this.time+sec(2.0);
             this.ready = false;
             this.stop = false;
@@ -139,7 +178,7 @@ tm.define("roulette.MainScene", {
         //ストップ処理
         if (this.finish && kb.getKey("space") && this.time > this.interval) {
             this.interval = this.time+sec(2.0);
-            this.ready = false;
+            this.ready = true;
         }
 
         if (!this.finish) {
@@ -160,6 +199,14 @@ tm.define("roulette.MainScene", {
             this.bg.x = 0;
         }
         this.time++;
+    },
+    
+    startup: function() {
+        for (var i = 0; i < NUM_PHOTO; i++) {
+            var p = this.photos[i];
+            p.tweener.wait(1000).to({x: p.currentX, y:p.currentY, scaleX: 0.1, scaleY: 0.1}, 1000, "easeOutQuint")
+//            p.tweener.wait(1000).scale(0.1, 500, "easeOutQuint").to({ x: p.currentX, y: p.currentY }, 1000, "easeOutQuint");
+        }
     },
 
     //タッチorクリック開始処理
