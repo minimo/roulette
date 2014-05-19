@@ -134,7 +134,7 @@ tm.define("roulette.MainScene", {
             this.photos[num].x = rand(-SC_W/2+200, SC_W/2-200);
             this.photos[num].y = rand(-SC_H/2+100, SC_H/2-100);
         }
-        
+
         //初回処理
         if (this.phase == 0 && kb.getKey("space")) {
             this.interval = this.time+sec(2.0);
@@ -184,8 +184,14 @@ tm.define("roulette.MainScene", {
         if (this.phase == 4 && kb.getKey("space") && this.time > this.interval) {
             this.interval = this.time+sec(2.0);
             this.center.tweener.fadeOut(1000);
+
             this.photos[this.select].skip = true;
+            this.photos[this.select].active = false;
             this.photos[this.select].tweener.clear().fadeOut(1000);
+            this.photos.splice(this.select,1);
+            NUM_PHOTO--;
+
+            this.shuffle();
             this.phase = 1;
             this.infoLabel.visible = true;
         }
@@ -200,8 +206,20 @@ tm.define("roulette.MainScene", {
     startup: function() {
         for (var i = 0; i < NUM_PHOTO; i++) {
             var p = this.photos[i];
-            p.tweener.wait(1000).to({x: p.currentX, y:p.currentY, scaleX: 0.1, scaleY: 0.1}, 1000, "easeOutQuint")
+            p.tweener.wait(1000).to({x: p.currentX, y: p.currentY, scaleX: 0.1, scaleY: 0.1}, 1000, "easeOutQuint");
 //            p.tweener.wait(1000).scale(0.1, 500, "easeOutQuint").to({ x: p.currentX, y: p.currentY }, 1000, "easeOutQuint");
+        }
+    },
+
+    shuffle: function() {
+        this.photos.shuffle();
+        var r = (Math.PI*2)/NUM_PHOTO;
+        for (var i = 0; i < NUM_PHOTO; i++) {
+            var p = this.photos[i];
+            p.r = -r*i;
+            p.currentX = Math.sin(p.r)*p.r_w;
+            p.currentY = Math.cos(p.r)*p.r_h;
+            p.tweener.clear().to({x: p.currentX, y: p.currentY, scaleX: 0.1, scaleY: 0.1}, 1000, "easeOutQuint");
         }
     },
 
