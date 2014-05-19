@@ -52,7 +52,7 @@ tm.define("roulette.MainScene", {
         lb.fontFamily = "'Orbitron'";
         lb.align     = "center";
         lb.baseline  = "middle";
-        lb.fontSize = 90;
+        lb.fontSize = 180;
         lb.fontWeight = 700;
         lb.outlineWidth = 2;
         lb.time = 1;
@@ -127,7 +127,7 @@ tm.define("roulette.MainScene", {
     update: function() {
         var kb = app.keyboard;
 
-        if (this.phase == 0 && this.time % 1 == 0) {
+        if (this.phase == 0 && this.time % sec(0.5) == 0) {
             var num = rand(1, NUM_PHOTO);
             this.photos[num].remove();
             this.photos[num].addChildTo(this.base);
