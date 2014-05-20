@@ -149,22 +149,6 @@ tm.define("roulette.MainScene", {
             this.phase++;
         }
 
-        //回転ストップ
-        if (this.phase == 2 && kb.getKey("space") && this.time > this.interval) {
-            this.interval = this.time+sec(2.0);
-            this.stop = true;
-            this.phase++;
-        }
-
-        //スライド中
-        if (this.phase == 3) {
-            if (this.time % 3 == 0)this.wait++;
-            if (this.wait == sec(1.0)) {
-                this.interval = this.time+sec(1.0);
-                this.phase++;
-            }
-        }
-
         //ルーレット回転処理
         if (this.phase == 2 || this.phase == 3) {
             if (this.time % this.wait == 0) {
@@ -180,14 +164,31 @@ tm.define("roulette.MainScene", {
             }
         }
 
+        //回転ストップ
+        if (this.phase == 2 && kb.getKey("space") && this.time > this.interval) {
+            this.interval = this.time+sec(2.0);
+            this.stop = true;
+            this.phase++;
+        }
+
+        //スライド中
+        if (this.phase == 3) {
+            if (this.time % 3 == 0)this.wait++;
+            if (this.wait == sec(1.0)) {
+                this.interval = this.time+sec(1.0);
+                this.center.tweener.scale(1.5, 2000, "easeOutQuint");
+                this.photos[this.select].tweener.clear().fadeOut(1000);
+                this.phase++;
+            }
+        }
+
         //当選者決定後、最初に戻る
         if (this.phase == 4 && kb.getKey("space") && this.time > this.interval) {
             this.interval = this.time+sec(2.0);
-            this.center.tweener.fadeOut(1000);
+            this.center.tweener.clear().fadeOut(1000);
 
             this.photos[this.select].skip = true;
             this.photos[this.select].active = false;
-            this.photos[this.select].tweener.clear().fadeOut(1000);
             this.photos.splice(this.select,1);
             NUM_PHOTO--;
 
