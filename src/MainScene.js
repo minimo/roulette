@@ -157,6 +157,7 @@ tm.define("roulette.MainScene", {
                 if (this.select == NUM_PHOTO) {
                     this.select = 0;
                 }
+//                var se = tm.sound.WebAudio("beep").play();
                 this.photos[this.select].active = true;
                 var num = this.photos[this.select].number;
                 this.center.remove();
@@ -173,7 +174,7 @@ tm.define("roulette.MainScene", {
 
         //スライド中
         if (this.phase == 3) {
-            if (this.time % 3 == 0)this.wait++;
+            if (this.time % 6 == 0)this.wait++;
             if (this.wait == sec(1.0)) {
                 this.interval = this.time+sec(1.0);
                 this.center.tweener.scale(1.5, 2000, "easeOutQuint");

@@ -10,6 +10,9 @@ var assets = {
     //images
     "bg":   "assets/5212712025_93cca9e023_o.jpg",
 
+    //sound
+    "beep": "assets/se_maoudamashii_system26.mp3",
+
     //photo
     "1":   "photo/1.png",
     "2":   "photo/2.png",
