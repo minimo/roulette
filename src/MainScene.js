@@ -157,7 +157,7 @@ tm.define("roulette.MainScene", {
                 if (this.select == NUM_PHOTO) {
                     this.select = 0;
                 }
-//                var se = tm.sound.WebAudio("beep").play();
+                var se = tm.asset.AssetManager.get("beep");
                 this.photos[this.select].active = true;
                 var num = this.photos[this.select].number;
                 this.center.remove();
