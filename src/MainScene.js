@@ -174,10 +174,10 @@ tm.define("roulette.MainScene", {
 
         //スライド中
         if (this.phase == 3) {
-            if (this.time % 6 == 0)this.wait++;
+            if (this.time % sec(0.02) == 0)this.wait++;
             if (this.wait == sec(1.0)) {
                 this.interval = this.time+sec(1.0);
-                this.center.tweener.scale(1.5, 2000, "easeOutQuint");
+                this.center.tweener.scale(1.8, 2000, "easeOutQuint");
                 this.photos[this.select].tweener.clear().fadeOut(1000);
                 this.phase++;
             }
