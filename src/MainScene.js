@@ -176,9 +176,12 @@ tm.define("roulette.MainScene", {
         if (this.phase == 3) {
             if (this.time % sec(0.02) == 0)this.wait++;
             if (this.wait == sec(1.0)) {
+                //当選者決定
                 this.interval = this.time+sec(1.0);
                 this.center.tweener.scale(1.8, 2000, "easeOutQuint");
                 this.photos[this.select].tweener.clear().fadeOut(1000);
+//                this.photos[this.select].tweener.clear().scale(0.1, 1000, "easeOutQuint");
+                this.photos[this.select].active = false;
                 this.phase++;
             }
         }
@@ -189,11 +192,26 @@ tm.define("roulette.MainScene", {
             this.center.tweener.clear().fadeOut(1000);
 
             this.photos[this.select].skip = true;
-            this.photos[this.select].active = false;
             this.photos.splice(this.select,1);
             NUM_PHOTO--;
 
             this.shuffle();
+            this.phase = 1;
+            this.infoLabel.visible = true;
+        }
+
+        //当選者決定後、最初に戻る（キャンセル）
+        if (this.phase == 4 && kb.getKey("return") && this.time > this.interval) {
+            this.interval = this.time+sec(2.0);
+
+            var x = this.photos[this.select].x
+            var y = this.photos[this.select].y
+            this.center.tweener.clear().to({x: this.photos[this.select].x, y: this.photos[this.select].y, scaleX: 0.1, scaleY: 0.1}, 1000, "easeOutQuint").fadeOut(1);
+            
+            this.photos[this.select].active = false;
+            this.photos[this.select].visible = true;
+            this.photos[this.select].alpha = 1.0;
+
             this.phase = 1;
             this.infoLabel.visible = true;
         }
