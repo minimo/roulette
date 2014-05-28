@@ -26,10 +26,20 @@ tm.define("roulette.MainScene", {
     //ルーレット用
     r_w: 900,
     r_h: 500,
+    
+    //back ground music
+    bgm: null,
 
     init: function() {
         this.superInit();
         this.background = "rgba(0, 0, 0, 1.0)";
+        
+        this.bgm = tm.asset.AssetManager.get("bgm").clone();
+        if (this.bgm) {
+            this.bgm.loop = true;
+            this.bgm.currentTime = 0;
+        }
+
 
         //バックグラウンド
         var bg = this.bg = tm.display.Sprite("bg",3848, 1280).addChildTo(this);

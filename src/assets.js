@@ -12,6 +12,7 @@ var assets = {
 
     //sound
     "beep": "assets/se_maoudamashii_system26.mp3",
+    "bgm":  "assets/bgm_stage2.mp3",
 
     //photo
     "1":   "photo/1.png",
