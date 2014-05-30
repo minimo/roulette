@@ -157,6 +157,8 @@ tm.define("roulette.MainScene", {
             this.interval = this.time+sec(2.0);
             this.wait = 1;
             this.phase++;
+            this.bgm.currentTime = 100;
+            this.bgm.play();
         }
 
         //ルーレット回転処理
@@ -167,7 +169,7 @@ tm.define("roulette.MainScene", {
                 if (this.select == NUM_PHOTO) {
                     this.select = 0;
                 }
-                tm.asset.AssetManager.get("beep").clone().play();
+                if (this.phase == 3)tm.asset.AssetManager.get("beep").clone().play();
                 this.photos[this.select].active = true;
                 var num = this.photos[this.select].number;
                 this.center.remove();
@@ -180,6 +182,7 @@ tm.define("roulette.MainScene", {
             this.interval = this.time+sec(2.0);
             this.stop = true;
             this.phase++;
+            this.bgm.stop();
         }
 
         //スライド中
