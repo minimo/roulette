@@ -209,9 +209,9 @@ tm.define("roulette.MainScene", {
 
         //スライド中
         if (this.phase == 3) {
-            if (this.time % sec(0.2) == 0)this.wait+=rand(3,6);
+            if (this.time % sec(0.2) == 0)this.wait+=rand(3,8);
 
-            if (this.wait > sec(0.35)) {
+            if (this.wait > sec(1.0)) {
                 //当選者決定
                 this.interval = this.time+sec(1.0);
                 this.center.tweener.scale(1.8, 2000, "easeOutQuint");
