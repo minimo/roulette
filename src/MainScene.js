@@ -211,10 +211,10 @@ tm.define("roulette.MainScene", {
         if (this.phase == 3) {
             if (this.time % sec(0.2) == 0)this.wait+=rand(3,8);
 
-            if (this.wait > sec(1.0)) {
+            if (this.wait > sec(0.7)) {
                 //当選者決定
                 this.interval = this.time+sec(1.0);
-                this.center.tweener.scale(1.8, 2000, "easeOutQuint");
+                this.center.tweener.wait(500).scale(1.8, 2000, "easeOutQuint");
                 this.photos[this.select].tweener.clear().fadeOut(1000);
 //                this.photos[this.select].tweener.clear().scale(0.1, 1000, "easeOutQuint");
                 this.photos[this.select].active = false;
