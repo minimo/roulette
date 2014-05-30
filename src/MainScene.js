@@ -91,6 +91,26 @@ tm.define("roulette.MainScene", {
             }
             this.time++;
         };
+        
+        //デバッグ用表示
+//        if (DEBUG) {
+            var that = this;
+            var lb = this.debug = tm.display.OutlineLabel("START!", 30).addChildTo(this.info);
+            lb.x = 100;
+            lb.y = 100;
+            lb.fontFamily = "'Orbitron'";
+            lb.align     = "center";
+            lb.baseline  = "middle";
+            lb.fontSize = 32;
+            lb.outlineWidth = 2;
+            lb.time = 1;
+            lb.visible = false;
+            lb.update = function() {
+                this.text = "time:"+that.time;
+            }
+//        }
+            
+        
 
         //写真準備
         var ps = this.photos = [];
@@ -154,6 +174,7 @@ tm.define("roulette.MainScene", {
 
         //回転スタート
         if (this.phase == 1 && kb.getKey("space") && this.time > this.interval) {
+            this.select = rand(0, NUM_PHOTO-1);
             this.interval = this.time+sec(2.0);
             this.wait = 1;
             this.phase++;
@@ -161,12 +182,21 @@ tm.define("roulette.MainScene", {
             this.bgm.play();
         }
 
+        //回転ストップ
+        if (this.phase == 2 && kb.getKey("space") && this.time > this.interval) {
+            this.time = 0;
+            this.interval = this.time+sec(2.0);
+            this.stop = true;
+            this.phase++;
+            this.bgm.stop();
+        }
+
         //ルーレット回転処理
         if (this.phase == 2 || this.phase == 3) {
             if (this.time % this.wait == 0) {
                 this.photos[this.select].active = false;
                 this.select++;
-                if (this.select == NUM_PHOTO) {
+                if (this.select >= NUM_PHOTO) {
                     this.select = 0;
                 }
                 if (this.phase == 3)tm.asset.AssetManager.get("beep").clone().play();
@@ -177,18 +207,11 @@ tm.define("roulette.MainScene", {
             }
         }
 
-        //回転ストップ
-        if (this.phase == 2 && kb.getKey("space") && this.time > this.interval) {
-            this.interval = this.time+sec(2.0);
-            this.stop = true;
-            this.phase++;
-            this.bgm.stop();
-        }
-
         //スライド中
         if (this.phase == 3) {
-            if (this.time % sec(0.02) == 0)this.wait++;
-            if (this.wait == sec(1.0)) {
+            if (this.time % sec(0.2) == 0)this.wait+=rand(3,6);
+
+            if (this.wait > sec(0.35)) {
                 //当選者決定
                 this.interval = this.time+sec(1.0);
                 this.center.tweener.scale(1.8, 2000, "easeOutQuint");

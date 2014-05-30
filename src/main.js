@@ -6,11 +6,11 @@
  */
  
 //乱数発生器
-var mt = new MersenneTwister();
+mt = new MersenneTwister();
 
 //定数
 //デバッグフラグ
-var DEBUG = false;
+DEBUG = true;
 
 //スクリーンサイズ
 SC_W = 1920;
@@ -28,7 +28,7 @@ fps = 240;
 
 var toRad = 3.14159/180;    //弧度法toラジアン変換
 var toDeg = 180/3.14159;    //ラジアンto弧度法変換
-var sec = function(s) { return ~~(fps * s) };               //秒からフレーム数へ変換
+var sec = function(s) { return ~~(fps * s);}    //秒からフレーム数へ変換
 var rand = function(min, max) { return mt.nextInt(min, max); };    //乱数発生
 //var rand = function(max) {return ~~(Math.random() * max);}
 
