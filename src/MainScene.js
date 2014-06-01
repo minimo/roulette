@@ -40,7 +40,6 @@ tm.define("roulette.MainScene", {
             this.bgm.currentTime = 0;
         }
 
-
         //バックグラウンド
         var bg = this.bg = tm.display.Sprite("bg",3848, 1280).addChildTo(this);
         bg.x = 0;
@@ -175,17 +174,17 @@ tm.define("roulette.MainScene", {
         //回転スタート
         if (this.phase == 1 && kb.getKey("space") && this.time > this.interval) {
             this.select = rand(0, NUM_PHOTO-1);
-            this.interval = this.time+sec(2.0);
+            this.interval = this.time+sec(1.0);
             this.wait = 1;
             this.phase++;
-            this.bgm.currentTime = 100;
+            this.bgm.currentTime = 0;
             this.bgm.play();
         }
 
         //回転ストップ
         if (this.phase == 2 && kb.getKey("space") && this.time > this.interval) {
             this.time = 0;
-            this.interval = this.time+sec(2.0);
+            this.interval = this.time+sec(1.0);
             this.stop = true;
             this.phase++;
             this.bgm.stop();
@@ -199,7 +198,11 @@ tm.define("roulette.MainScene", {
                 if (this.select >= NUM_PHOTO) {
                     this.select = 0;
                 }
-                if (this.phase == 3)tm.asset.AssetManager.get("beep").clone().play();
+                if (this.phase == 3) {
+                    var se = tm.asset.AssetManager.get("beep").clone();
+                    se.volume = 0.5;
+                    se.play();
+                }
                 this.photos[this.select].active = true;
                 var num = this.photos[this.select].number;
                 this.center.remove();
@@ -211,7 +214,7 @@ tm.define("roulette.MainScene", {
         if (this.phase == 3) {
             if (this.time % sec(0.2) == 0)this.wait+=rand(3,8);
 
-            if (this.wait > sec(0.7)) {
+            if (this.wait > sec(0.5)) {
                 //当選者決定
                 this.interval = this.time+sec(1.0);
                 this.center.tweener.wait(500).scale(1.8, 2000, "easeOutQuint");
