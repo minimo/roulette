@@ -26,12 +26,12 @@ tm.define("roulette.CanvasApp", {
             assets: assets,
             width: SC_W,
             height: SC_H,
+            bgColor: "black",
             nextScene: function() {
                 this._onLoadAssets();
                 return roulette.MainScene();
             }.bind(this),
         });
-        loadingScene.bg.canvas.clearColor("black");
         this.replaceScene(loadingScene);
   },
 
