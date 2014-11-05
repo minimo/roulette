@@ -212,7 +212,9 @@ tm.define("roulette.MainScene", {
 
         //スライド中
         if (this.phase == 3) {
-            if (this.time % sec(0.2) == 0)this.wait+=rand(3,8);
+            if (this.time % sec(0.2) == 0){
+                this.wait+=10;
+            }
 
             if (this.wait > sec(0.5)) {
                 //当選者決定
@@ -228,7 +230,7 @@ tm.define("roulette.MainScene", {
         //当選者決定後、最初に戻る
         if (this.phase == 4 && kb.getKey("space") && this.time > this.interval) {
             this.interval = this.time+sec(2.0);
-            this.center.tweener.clear().fadeOut(1000);
+            this.center.tweener.clear().fadeOut(500);
 
             this.photos[this.select].skip = true;
             this.photos.splice(this.select,1);
